@@ -9,33 +9,43 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-- task: UseDotNet@2
-  displayName: 'Install .NET Core SDK'
-  inputs:
-    version: 8.x
-    performMultiLevelLookup: true
-    includePreviewVersions: true # Required for preview versions
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    command: build
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)' # Update this to match your needs
+stages:
+- stage: Build  # Define Build Stage
+  displayName: Build the application
+  jobs:  # Jobs within Build Stage (can have multiple jobs)
+  - job: Build  # Define a job within Build Stage
+    displayName: Build .NET Core application
+    steps:
+      - script: echo Hello, world!
+        displayName: 'Run a one-line script'
+      - task: UseDotNet@2
+        displayName: 'Install .NET Core SDK'
+        inputs:
+          version: 8.x
+          performMultiLevelLookup: true
+          includePreviewVersions: true # Required for preview versions
+      - task: DotNetCoreCLI@2
+        displayName: Build
+        inputs:
+          command: build
+          projects: '**/*.csproj'
+          arguments: '--configuration $(buildConfiguration)' # Update this to match your needs
 
-# ...
-# do this after you've built your app, near the end of your pipeline in most cases
-# for example, you do this before you deploy to an Azure web app on Windows
-- task: DotNetCoreCLI@2
-  inputs:
-    command: publish
-    publishWebProjects: True
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: True
+- stage: Deploy 
+  displayName: Publish the application
+  jobs:  # Jobs within Build Stage (can have multiple jobs)
+    - job: Deploy  # Define a job within Build Stage
+      displayName: Deploy .NET Core application
+      steps:
+        - script: echo Hello, world!
+          displayName: 'Run a one-line script'
+        - task: DotNetCoreCLI@2
+          displayName: Publish
+          inputs:
+            command: publish
+            publishWebProjects: True
+            arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+            zipAfterPublish: True
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+
+
